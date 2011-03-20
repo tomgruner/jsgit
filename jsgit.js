@@ -4,7 +4,7 @@ function jsgit (params) {
 		AdobeAir : function (params) {
 			var params   = params;
 			var obj		 = this;
-			console.log(params.gitCommand);
+			
 			obj.gitCommand       = params.gitCommand;
 			obj.workingDirectory = params.workingDirectory; 
 			obj.callGit				 = function (args, listener) {
@@ -61,14 +61,21 @@ function jsgit (params) {
 	} else {
 		var context = new params.context(params);
 	}
+			
+	if(typeof(params.log == 'function')) {
+		log = params.log;
+	} else {
+		var log       = function (message) {};
+	}
 	
 	var jsgitInstance = {
 		context    : context,
+		log		   : log,
 		setDirectory :function setDirectory(directory) {
 			context.workingDirectory = directory;
 		},
 		workingDir   : params.workingDir,
-		Listener   : function () {
+		Listener   : function (params) {
 			var obj           = this;
 		    obj.data          = '';
 		    obj.errorData 	  = '';
@@ -85,9 +92,11 @@ function jsgit (params) {
 		    
 		    obj.onExit = function (exitCode) {
 		    	obj.exitCode = exitCode;
-		    	if(exitCode == 0) {
+		    	//Exit code ok
+		    	if(exitCode == 0 || exitCode == 1) {
 		    		obj.onComplete(obj.data)
 		    	}
+		    	//Exit code error
 		    	else {
 		    		obj.onError(obj.exitCode, obj.errorData)
 		    	} 
@@ -95,12 +104,17 @@ function jsgit (params) {
 		    
 		    obj.onComplete = function(data) {
 		    	//Do custom stuff with data here
-		    	console.log(data)
+		    	jsgitInstance.log(data);
 		    }
 		    
 		    obj.onError = function (exitCode, errorData) {
 		    	//Do custom stuff with error data here
-		    	console.log(exitCode + '  ' + errorData);	
+		    	jsgitInstance.log('Error: command ' + obj.commandCalled + ' exited with code ' + exitCode + '  ' + errorData);	
+		    }
+		    
+		    //Accept custom methods, etc...
+		    for (var i in params) {
+		    	obj[i] = params[i];
 		    }
 		    
 		    return obj;
