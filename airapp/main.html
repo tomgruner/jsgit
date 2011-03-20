@@ -1,0 +1,29 @@
+<html>
+	<head>
+		<title>jsgit.js air client</title>
+		 <!-- Load in the base air aliases -->
+        <script type="text/javascript" src="lib/AIRAliases.js"></script>
+        <script type="text/javascript" src="lib/AIRIntrospector.js"></script>
+        <script type="text/javascript" src="lib/AIRSourceViewer.js"></script>
+        <script type="text/javascript" src="../jsgit.js"></script>
+        <script type="text/javascript">
+        
+        window.onload = function() {
+        	document.getElementById('log').innerHTML = 'hello';
+        	console = air.Introspector.Console;
+        	var git = new jsgit({context          : 'AdobeAir',
+        						 gitCommand 	  : '/usr/local/git/bin/git',
+        						 workingDirectory : '/srv/test'
+        						  });
+        	
+        	git.callGit(['init'], new git.Listener())
+        	git.callGit(['status'], new git.Listener())
+        } 	
+         	
+        </script>
+	</head>
+	<body>
+		<h2>jsgit.js</h2>
+		<div id="log"></div>
+	</body>
+</html>
