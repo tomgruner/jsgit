@@ -1,2 +1,34 @@
 A very basic interface in javascript to manage git repositories for Adobe Air and Node.js
 
+Example for Adobe Air 
+
+//Start up a new repository and do a commit
+var git = new jsgit({//js context (node, air, other??)
+					 context          : 'AdobeAir',
+                     //On air, an absolute path to git is required
+					 gitCommand 	  : '/usr/local/git/bin/git',
+					 //optional logging function
+					 log              : log});
+
+//Set the working directory
+git.setDirectory(testDir);
+
+//Send a direct call to git with an instance of git.Listener       	
+git.callGit(['init'], new git.Listener({onComplete : function (data){
+	log(data);
+	git.callGit(['status'], new git.Listener());
+	var testFile = air.File.documentsDirectory.resolvePath('jsgit/test/sampleFile.txt');
+	var fs = new air.FileStream();
+	fs.open(testFile, air.FileMode.WRITE);
+	fs.writeUTFBytes('why hello');
+	fs.close();
+	git.callGit(['add', 'sampleFile.txt'], new git.Listener({onComplete : function (data) {
+		log('add sampleFile.txt: ' + data);
+		git.callGit(['commit', '-m', 'Initial Commit'], new git.Listener({onComplete : function (data) {
+			log('commit -m "Initial Commit": ' + data);
+			git.callGit(['log'],  new git.Listener({onComplete : function (data) {
+				log('log: ' + data);
+			}}));
+		}}));
+	}}));
+}}));
